@@ -1,102 +1,69 @@
 #**Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+##Writeup
 
-Overview
+###William Rifenburgh (wmrifenburgh@gmail.com)
+
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+**Finding Lane Lines on the Road**
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-1. Describe the pipeline
-2. Identify any shortcomings
-3. Suggest possible improvements
+[//]: # (Image References)
 
-We encourage using images in your writeup to demonstrate how your pipeline works.  
+[image1]: ./writeup_outputs/grayscale_solidWhiteCurve.jpg "Grayscale"
 
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
+[image2]: ./writeup_outputs/canny_solidWhiteCurve.jpg "Canny Edges"
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+[image3]: ./writeup_outputs/regionimage_solidWhiteCurve.jpg "Region filtered Canny Edges"
 
+[image4]: ./writeup_outputs/output_solidWhiteCurve.jpg "Final Output"
 
-The Project
 ---
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you can install the starter kit or follow the install instructions below to get started on this project. ##
+### Reflection
 
-**Step 1:** Getting setup with Python
+###1. Description of pipeline the draw_lines() modification:
 
-To do this project, you will need Python 3 along with the numpy, matplotlib, and OpenCV libraries, as well as Jupyter Notebook installed. 
+My pipeline consisted of the following steps:
 
-We recommend downloading and installing the Anaconda Python 3 distribution from Continuum Analytics because it comes prepackaged with many of the Python dependencies you will need for this and future projects, makes it easy to install OpenCV, and includes Jupyter Notebook.  Beyond that, it is one of the most common Python distributions used in data analytics and machine learning, so a great choice if you're getting started in the field.
+First, convert to grayscale:
 
-Choose the appropriate Python 3 Anaconda install package for your operating system <A HREF="https://www.continuum.io/downloads" target="_blank">here</A>.   Download and install the package.
+![alt text][image1]
 
-If you already have Anaconda for Python 2 installed, you can create a separate environment for Python 3 and all the appropriate dependencies with the following command:
+Second, perform canny edge detection:
 
-`>  conda create --name=yourNewEnvironment python=3 anaconda`
+![alt text][image2]
 
-`>  source activate yourNewEnvironment`
+Third, filter to only the lane region:
 
-**Step 2:** Installing OpenCV
+![alt text][image3]
 
-Once you have Anaconda installed, first double check you are in your Python 3 environment:
+Fourth, use a hough transformation and modified version of draw_lines to draw the single line for the right and left lane boundaries:
 
-`>python`    
-`Python 3.5.2 |Anaconda 4.1.1 (x86_64)| (default, Jul  2 2016, 17:52:12)`  
-`[GCC 4.2.1 Compatible Apple LLVM 4.2 (clang-425.0.28)] on darwin`  
-`Type "help", "copyright", "credits" or "license" for more information.`  
-`>>>`   
-(Ctrl-d to exit Python)
+![alt text][image4]
 
-run the following commands at the terminal prompt to get OpenCV:
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by taking the lines output by the hough transform openCV function and filtering them to find on the lines that had slope of 0.2 to 0.8 for the left boundary and between -0.8 to -0.2 for the right boundary.
 
-`> pip install pillow`  
-`> conda install -c menpo opencv3=3.1.0`
+For each lane boundary, the lines found to meet the slope criteria were used to create an average slope and an average y-intercept as in slope-intercept form of a line equation (y=m*x+b).
 
-then to test if OpenCV is installed correctly:
+The inverse of the average slope-intercept equations was evaluated at y values for the top and bottom of the lane for both sides ( x=(y-b)/m ). The resulting x values were used to complete the coordinates for the vertices of each boundary line. 
 
-`> python`  
-`>>> import cv2`  
-`>>>`  (i.e. did not get an ImportError)
 
-(Ctrl-d to exit Python)
 
-**Step 3:** Installing moviepy  
+###2. Potential (and current) Shortcomings
 
-We recommend the "moviepy" package for processing video in this project (though you're welcome to use other packages if you prefer).  
+Shortcomings include an inability to track lane boundaries when the car switches lanes and a heavy depedence on sufficient tonal contrast between painted line markings and pavement.
 
-To install moviepy run:
+The pipeline's result for the optional challenge video illustrates the last point when the road pavement briefly changes color from black asphalt to pale concrete.
 
-`>pip install moviepy`  
+###3. Possible Improvements
 
-and check that the install worked:
+A possible improvement to help deal with poor tonal contrast between road pavement and lane line markings is to make use of all color channels available for edge detection.
 
-`>python`  
-`>>>import moviepy`  
-`>>>`  (i.e. did not get an ImportError)
-
-(Ctrl-d to exit Python)
-
-**Step 4:** Opening the code in a Jupyter Notebook
-
-You will complete this project in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
-
-Jupyter is an ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, run the following command at the terminal prompt (be sure you're in your Python 3 environment!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 5:** Complete the project and submit both the Ipython notebook and the project writeup
+Tracking line markings when switching lanes could be done by filtering for line slopes based on a moving average of slopes and y-intercepts across multiple image frames in time rather than filtering using hard coded values.
 

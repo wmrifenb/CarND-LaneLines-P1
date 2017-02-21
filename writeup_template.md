@@ -1,8 +1,8 @@
 #**Finding Lane Lines on the Road** 
 
-##Writeup Template
+##Writeup
 
-###You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
+###William Rifenburgh (wmrifenburgh@gmail.com)
 
 ---
 
@@ -21,27 +21,38 @@ The goals / steps of this project are the following:
 
 ### Reflection
 
-###1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+###1. Description of pipeline the draw_lines() modification:
 
-My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I .... 
+My pipeline consisted of the following steps:
 
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
+First, convert to grayscale:
 
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
+Second, perform canny edge detection:
+
+Third, filter to only the lane region:
+
+Fourth, perform hough transform identification of lines:
+
+Fifth, use modified version of draw_lines to draw the single line for the right and left lane boundaries.
+
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by taking the lines output by the hough transform openCV function and filtering them to find on the lines that had slope of 0.2 to 0.8 for the left boundary and between -0.8 to -0.2 for the right boundary.
+
+For each lane boundary, the lines found to meet the slope criteria were used to create an average slope and an average y-intercept as in slope-intercept form of a line equation (y=m*x+b).
+
+The inverse of the average slope-intercept equations was evaluated at y values for the top and bottom of the lane for both sides ( x=(y-b)/m ). The resulting x values were used to create coordinates for the vertices of each boundary line. 
 
 ![alt text][image1]
 
 
-###2. Identify potential shortcomings with your current pipeline
+###2. Potential (and current) Shortcomings
 
+Shortcomings include an inability to track lane boundaries when the car switches lanes and a heavy depedence on sufficient tonal contrast between painted line markings and pavement.
 
-One potential shortcoming would be what would happen when ... 
+The pipeline's result for the optional challenge video illustrates the last point when the road pavement briefly changes color from black asphalt to pale concrete.
 
-Another shortcoming could be ...
+###3. Possible Improvements
 
+A possible improvement to help deal with poor tonal contrast between road pavement and lane line markings is to make use of all color channels available for edge detection.
 
-###3. Suggest possible improvements to your pipeline
+Tracking line markings when switching lanes could be done by filtering for line slopes based on a moving average of slopes and y-intercepts across multiple image frames in time rather than filtering using hard coded values.
 
-A possible improvement would be to ...
-
-Another potential improvement could be to ...
