@@ -67,3 +67,8 @@ A possible improvement to help deal with poor tonal contrast between road paveme
 
 Tracking line markings when switching lanes could be done by filtering for line slopes based on a moving average of slopes and y-intercepts across multiple image frames in time rather than filtering using hard coded values.
 
+Links:
+
+[Jupyter Notebook Generated HTML](https://github.com/wmrifenb/CarND-LaneLines-P1/blob/master/P1.html).
+
+[Jupyter Notebook File](https://github.com/wmrifenb/CarND-LaneLines-P1/blob/master/P1.ipynb)
